@@ -26,7 +26,7 @@ export const Header = () => {
           alt="profile picture"
         />
 
-        <h2>Xanthe Neal</h2>
+        <h2>{rawData.name}</h2>
         <div className={`relative`}>
           <button
             onClick={handleIsActive}

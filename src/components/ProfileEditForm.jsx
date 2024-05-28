@@ -8,14 +8,14 @@ const ProfileEditForm = () => {
   const { profile, profileMutation } = useAuth();
   const { profile: profileData } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
     phone: "",
     email: "",
     password: "",
-    photo: "",
+    photo: null,
   });
 
   useEffect(() => {
@@ -32,15 +32,24 @@ const ProfileEditForm = () => {
   }, [profile]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, files } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: files ? files[0] : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formDataToSend = new FormData();
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
+    }
+
     try {
-      await profileMutation.mutateAsync(formData);
+      await profileMutation.mutateAsync(formDataToSend);
       alert("Profile updated successfully");
-      console.log(formData);
     } catch (error) {
       alert(error.response?.data?.message || "An error occurred");
     }
@@ -94,13 +103,11 @@ const ProfileEditForm = () => {
               <h3 className="text-[#828282] font-medium text-md ">CHANGE PHOTO</h3>
               <input
                 id="photo"
-                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-red-400 hover:file:bg-red-100 cursor-pointer file:cursor-pointer"
                 type="file"
-                title="Change Photo"
                 name="photo"
-                value={formData.photo}
+                accept="image/*"
                 onChange={handleChange}
-                style={{ display: 'none' }} // Hide the input as the label will be the visible element
+                style={{ display: 'none' }}
               />
             </label>
             <label htmlFor="name" className="flex flex-col gap-2">
